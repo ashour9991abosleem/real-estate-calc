@@ -359,25 +359,28 @@ with calc_col2:
     st.text(f"خصم التقاعد العسكري (9% من الأساسي): -{mod_retirement_deduction:,.2f}")
     st.success(f"الصافي النهائي للتعريف (وزارة الدفاع): **{net_mod_definition:,.2f} ر.س**")
 
-# --- حاسبة التمويل الشخصي ---
+# --- حاسبة التمويل الشخصي (مع تعديل الراتب الصافي والمعادلة الدقيقة للنسبة الثابتة) ---
 st.markdown("---")
 st.markdown("### 💰 احتساب التمويل الشخصي")
 p_col1, p_col2 = st.columns(2)
 
 with p_col1:
-    pers_salary = st.number_input("الراتب الأساسي", value=5040.0, key="pers_salary_input")
+    pers_net_salary = st.number_input("الراتب الصافي", value=15000.0, key="pers_net_salary_input")
     pers_months = st.number_input("المدة بالأشهر", value=60, min_value=1, max_value=360, key="pers_months_input")
+    pers_rate = st.number_input("نسبة الربح السنوية (%)", value=3.99, min_value=0.0, format="%.2f", key="pers_rate_input")
 
 with p_col2:
-    pers_rate = 3.99
-    pers_deduct_pct = 0.3333
+    pers_deduct_pct = 0.3333  # نسبة الاستقطاع المعتمدة (33.33%)
     
-    max_allowed_monthly = pers_salary * pers_deduct_pct
+    max_allowed_monthly = pers_net_salary * pers_deduct_pct
     pers_total_years = pers_months / 12
     
-    pers_profit_factor = (pers_rate * pers_total_years) + 100
+    # المعادلة المصححة والدقيقة للتمويل الشخصي (النسبة الثابتة)
+    # إجمالي المستحق = القسط الشهري × عدد الأشهر
+    # صافي التمويل = إجمالي المستحق / (1 + (نسبة الربح السنوية / 100) × عدد السنوات)
     pers_total_due = max_allowed_monthly * pers_months
-    pers_loan_amount = (pers_total_due / pers_profit_factor) * 100 if pers_profit_factor > 0 else 0
+    denominator = 1 + ((pers_rate / 100) * pers_total_years)
+    pers_loan_amount = pers_total_due / denominator if denominator > 0 else 0
 
 st.markdown("---")
 res_pc1, res_pc2 = st.columns(2)
