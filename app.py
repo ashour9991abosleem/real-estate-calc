@@ -5,7 +5,7 @@ from datetime import datetime
 # إعدادات الصفحة
 st.set_page_config(page_title="حاسبة التمويل العقاري - أبو سليم", layout="wide")
 
-# شاشة افتتاحية بانيميشن لمدة ثانية وتختفي
+# شاشة افتتاحية بانيميشن ناعم وسلس جداً
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
@@ -14,10 +14,14 @@ st.markdown("""
         font-family: 'Cairo', sans-serif;
     }
     
-    @keyframes splashFadeOut {
+    @keyframes smoothAppear {
         0% {
+            opacity: 0;
+            transform: scale(0.96);
+        }
+        50% {
             opacity: 1;
-            visibility: visible;
+            transform: scale(1);
         }
         80% {
             opacity: 1;
@@ -42,7 +46,7 @@ st.markdown("""
         justify-content: center;
         align-items: center;
         z-index: 999999;
-        animation: splashFadeOut 1.2s ease-in-out forwards;
+        animation: smoothAppear 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         color: white;
         text-align: center;
         padding: 20px;
@@ -116,7 +120,6 @@ current_month = st.sidebar.number_input("الشهر الحالي (H27)", min_val
 current_year = st.sidebar.number_input("السنة الحالية (I27)", value=2026)
 retirement_age = st.sidebar.number_input("العمر التقاعدي (J27)", value=60)
 
-# حساب العمر والمدة المتبقية على التقاعد
 client_age = current_year - birth_year
 birth_total_months = (birth_year * 12) + birth_month
 retirement_total_months = birth_total_months + (retirement_age * 12)
@@ -133,7 +136,6 @@ job_status = st.sidebar.selectbox("جهة العمل (N27)", ["مدني", "عس�
 st.sidebar.markdown("---")
 st.sidebar.header("2. التزامات العميل")
 
-# الأزرار في البداية لمعالجة الحالة قبل إنشاء الـ widgets وتجنب خطأ Streamlit
 col_btn1, col_btn2, col_btn3 = st.sidebar.columns(3)
 calc_ratio_btn = col_btn1.button("حساب النسبة")
 buy_debt_btn = col_btn2.button("شراء المديونية")
@@ -155,7 +157,6 @@ if buy_debt_btn:
         st.session_state.p_inst_input = net_salary * 0.25
     st.session_state.d7_val_state = 58.0
 
-# حقول الالتزامات مع مفاتيح الحالة
 personal_installment = st.sidebar.number_input("قسط الشخصي (D5)", value=0.0, key="p_inst_input")
 personal_remaining = st.sidebar.number_input("المبلغ المتبقي للتمويل الشخصي (E5)", value=0.0, key="p_rem_input")
 other_installments = st.sidebar.number_input("الأقساط الأخرى (D6)", value=0.0, key="o_inst_input")
@@ -171,7 +172,6 @@ elif not calc_ratio_btn and not buy_debt_btn and not no_debt_btn:
 d7_val = st.session_state.d7_val_state
 st.sidebar.text(f"عدد الأقساط (D7): {d7_val:.1f}")
 
-# --- الفترة الأولى ---
 e14_p1_months = d7_val
 
 st.sidebar.markdown("---")
@@ -185,13 +185,11 @@ st.sidebar.markdown("##### التحكم اليدوي لشهور الفترات")
 e15_p2_months = st.sidebar.number_input(f"عدد شهور الفترة الثانية (E15) ({int(suggested_e15)})", value=float(suggested_e15))
 e16_p3_months = st.sidebar.number_input("عدد شهور الفترة الثالثة (E16)", value=0.0)
 
-# استقطاع مخصص
 st.sidebar.markdown("---")
 st.sidebar.header("4. استقطاع مخصص")
 m21_val = st.sidebar.number_input("استقطاع مخصص قبل التقاعد (M21)", value=0.0, format="%.2f")
 m22_val = st.sidebar.number_input("استقطاع مخصص بعد التقاعد (M22)", value=0.0, format="%.2f")
 
-# --- حسابات المدد والتقاعد والراتب التقاعدي ---
 service_years_calc = (current_year - hire_year) + ((current_month - 1) / 12)
 if job_status in ["عسكري", "عسكري اعتزاز"]:
     q27 = (((12 / 12) + service_years_calc) * base_salary) / 35
@@ -203,7 +201,6 @@ else:
 k14_support = 955 if support_type == "مدعوم" else 0
 d4_pension = q27 + k14_support
 
-# نسب الفترة الأولى
 if job_status == "عسكري اعتزاز":
     p1_factor = 0.65 if pkg_type == "شهري" else 0.55
 else:
@@ -211,7 +208,6 @@ else:
 
 d14_p1_amount = (net_salary * p1_factor) - (personal_installment + other_installments) if e14_p1_months > 0 else 0.0
 
-# معادلات الأقساط لفترة 2 و 3
 if m21_val == 0:
     if job_status == "عسكري اعتزاز":
         f2 = 0.65
@@ -241,15 +237,11 @@ else:
     else:
         d16_p3_amount = d4_pension * m22_val
 
-# الإجماليات والمدة الكلية
 d8_total_months = e14_p1_months + e15_p2_months + e16_p3_months
 e8_total_years = d8_total_months / 12
 
 total_financing = (d14_p1_amount * e14_p1_months) + (d15_p2_amount * e15_p2_months) + (d16_p3_amount * e16_p3_months)
 
-# ==========================================
-# معادلة نسبة البنك المطابقة لشيت الاكسيل
-# ==========================================
 standard_keys = [1, 60, 72, 84, 96, 108, 120, 132, 144, 156, 168, 180, 192, 204, 216, 228, 240, 252, 264, 276, 288, 300, 312, 324, 336, 348, 360]
 
 if e8_total_years > 30:
@@ -266,12 +258,12 @@ else:
                     profit_margin_result = excel_lookup(d8_total_months, standard_keys, [4.7,4.75,4.78,4.8,4.85,4.88,4.9,4.98,5.05,5.1,5.15,5.24,5.3,5.35,5.44,5.5,5.58,5.65,5.7,5.8,5.85,5.9,5.95,6.0,6.1,6.15,6.2])
                 else:
                     profit_margin_result = excel_lookup(d8_total_months, standard_keys, [3.8,3.85,3.88,3.9,3.95,3.98,4.0,4.08,4.15,4.2,4.25,4.34,4.4,4.45,4.54,4.6,4.68,4.75,4.8,4.9,4.95,5.0,5.05,5.1,5.2,5.25,5.3])
-            else: # باقة
+            else:
                 if e14_p1_months != 0:
                     profit_margin_result = excel_lookup(d8_total_months, standard_keys, [5.6,5.65,5.68,5.72,5.9,5.78,5.8,5.88,5.95,6.0,6.05,6.14,6.2,6.25,6.34,6.4,6.48,6.55,6.6,6.7,6.75,6.8,6.85,6.9,7.0,7.05,7.1])
                 else:
                     profit_margin_result = excel_lookup(d8_total_months, standard_keys, [4.7,4.75,4.78,4.8,4.85,4.88,4.9,4.98,5.05,5.1,5.15,5.24,5.3,5.35,5.44,5.5,5.58,5.65,5.7,5.8,5.85,5.9,5.95,6.0,6.1,6.15,6.2])
-        else: # غير مدعوم
+        else:
             if e14_p1_months != 0:
                 profit_margin_result = excel_lookup(d8_total_months, standard_keys, [5.2,5.25,5.28,5.3,5.35,5.38,5.4,5.48,5.55,5.6,5.65,5.74,5.8,5.85,5.94,6.0,6.08,6.15,6.2,6.3,6.35,6.4,6.45,6.5,6.6,6.65,6.7])
             else:
@@ -285,7 +277,7 @@ else:
                     profit_margin_result = excel_lookup(d8_total_months, [1,72,192,264], [3.4,4.4,4.55,4.75])
                 else:
                     profit_margin_result = excel_lookup(d8_total_months, [1,72,192,264,312], [2.5,3.5,3.65,3.75,3.85])
-            else: # باقة
+            else:
                 if e14_p1_months != 0:
                     profit_margin_result = excel_lookup(d8_total_months, [1,72,192,264], [4.3,5.3,5.45,5.65])
                 else:
@@ -304,14 +296,12 @@ else:
     net_financing = (total_financing / profit_factor) * 100 if profit_factor > 0 else 0
     display_margin = f"{profit_margin}%"
 
-# --- ملاحظات السداد ---
 st.sidebar.markdown("---")
 st.sidebar.header("5. ملاحظات السداد")
 note_1 = st.sidebar.text_input("ملاحظة السداد 1", "")
 note_2 = st.sidebar.text_input("ملاحظة السداد 2", "")
 note_3 = st.sidebar.text_input("ملاحظة السداد 3", "")
 
-# --- تقرير تصوير الحسبة النهائي ---
 st.markdown("### 📊 تقرير تصوير الحسبة للعميل")
 
 col_rep1, col_rep2 = st.columns(2)
@@ -343,7 +333,6 @@ col_bot1, col_bot2 = st.columns(2)
 col_bot1.metric("الدعم", support_type)
 col_bot2.metric("صافي راتب الاحتساب", f"{net_salary:,.0f} ر.س")
 
-# --- الحاسبتان المطابقتان لشيت الاكسيل (صافي التعريف وصافي التعريف - وزارة الدفاع) ---
 st.markdown("---")
 st.markdown("### 🧮 حاسبات صافي التعريف وصافي التعريف (وزارة الدفاع)")
 calc_col1, calc_col2 = st.columns(2)
@@ -370,29 +359,28 @@ with calc_col2:
     st.text(f"خصم التقاعد العسكري (9% من الأساسي): -{mod_retirement_deduction:,.2f}")
     st.success(f"الصافي النهائي للتعريف (وزارة الدفاع): **{net_mod_definition:,.2f} ر.س**")
 
-# --- حاسبة التمويل الشخصي (تمت إضافتها أسفل الحاسبتين كما طلبت) ---
+# --- حاسبة التمويل الشخصي (مقتصرة على: الراتب الأساسي، المدة بالأشهر، صافي التمويل) ---
 st.markdown("---")
-st.markdown("### 💰 حاسبة التمويل الشخصي")
+st.markdown("### 💰 احتساب التمويل الشخصي")
 p_col1, p_col2 = st.columns(2)
 
 with p_col1:
-    pers_salary = st.number_input("الراتب الشهري (الأساسي + البدلات) للتمويل الشخصي", value=12000.0, key="pers_salary_input")
-    pers_commitments = st.number_input("الالتزامات الشهرية الحالية للتمويل الشخصي", value=1000.0, key="pers_commit_input")
-    pers_deduct_pct = st.slider("نسبة الاستقطاع القصوى للتمويل الشخصي (%)", min_value=30, max_value=65, value=55, key="pers_deduct_input")
+    pers_salary = st.number_input("الراتب الأساسي", value=5040.0, key="pers_salary_input")
+    pers_months = st.number_input("المدة بالأشهر", value=60, min_value=1, max_value=360, key="pers_months_input")
 
 with p_col2:
-    pers_years = st.slider("مدة التمويل الشخصي (سنوات)", min_value=1, max_value=5, value=5, key="pers_years_input")
-    pers_rate = st.number_input("نسبة المرابحة السنوية للتمويل الشخصي (%)", min_value=2.0, max_value=10.0, value=4.0, step=0.1, key="pers_rate_input")
+    # ثوابت الحساب خلف الكواليس مطابقة لصورة الشيت
+    pers_rate = 3.99
+    pers_years = pers_months / 12
+    pers_deduct_pct = 0.55  # نسبة الاستقطاب الافتراضية
     
-    max_allowed_monthly = pers_salary * (pers_deduct_pct / 100)
-    net_available_monthly = max(0.0, max_allowed_monthly - pers_commitments)
-    total_months_pers = pers_years * 12
+    max_allowed_monthly = pers_salary * pers_deduct_pct
+    pers_total_years = pers_months / 12
     
-    pers_loan_amount = (net_available_monthly * total_months_pers) / (1 + (pers_rate / 100) * pers_years)
-    pers_total_profit = pers_loan_amount * (pers_rate / 100) * pers_years
+    # حساب صافي التمويل بناءً على معادلات المعامل والنسبة في الشيت
+    pers_profit_factor = (pers_rate * pers_total_years) + 100
+    pers_total_due = max_allowed_monthly * pers_months
+    pers_loan_amount = (pers_total_due / pers_profit_factor) * 100 if pers_profit_factor > 0 else 0
 
-st.markdown("---")
-res_c1, res_c2, res_c3 = st.columns(3)
-res_c1.metric("القسط الشهري المتاح للتمويل الشخصي", f"{net_available_monthly:,.2f} ر.س")
-res_c2.metric("إجمالي مبلغ التمويل الشخصي", f"{pers_loan_amount:,.2f} ر.س")
-res_c3.metric("إجمالي الأرباح للتمويل الشخصي", f"{pers_total_profit:,.2f} ر.س")
+    st.markdown("##### النتيجة المطلوبة")
+    st.success(f"صافي التمويل: **{pers_loan_amount:,.2f} ر.س**")
