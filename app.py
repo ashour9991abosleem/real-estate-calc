@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
+import urllib.parse
 
 # إعدادات الصفحة
 st.set_page_config(page_title="حاسبة التمويل العقاري - أبو سليم", layout="wide")
@@ -312,7 +313,6 @@ tab1, tab2, tab3 = st.tabs([
 with tab1:
     st.markdown("### 📊 تقرير تصوير الحسبة للعميل")
     
-    # خانة اسم العميل المضافة حديثاً داخل التقرير
     client_name_input = st.text_input("اسم العميل", "محمد بن عبد الله", key="report_client_name")
     st.markdown(f"**العميل الكريم:** `{client_name_input}`")
     st.markdown("---")
@@ -345,6 +345,39 @@ with tab1:
     col_bot1, col_bot2 = st.columns(2)
     col_bot1.metric("الدعم", support_type)
     col_bot2.metric("صافي راتب الاحتساب", f"{net_salary:,.0f} ر.س")
+
+    # --- زر التصدير والإرسال عبر الواتساب ---
+    st.markdown("---")
+    
+    notes_combined = ""
+    if note_1: notes_combined += f"\n- {note_1}"
+    if note_2: notes_combined += f"\n- {note_2}"
+    if note_3: notes_combined += f"\n- {note_3}"
+
+    whatsapp_message = f"""📊 *تقرير تصوير الحسبة العقارية*
+--------------------------------
+👤 *اسم العميل:* {client_name_input}
+🏢 *جهة العمل:* {job_status}
+⏳ *المدة المتبقية للتقاعد:* {k17_remaining_service} شهراً
+
+💰 *تفاصيل التمويل:*
+- مبلغ التمويل: {net_financing:,.0f} ر.س
+- الدعم الشهري: {k14_support} ر.س
+- مدة التمويل: {e8_total_years:.1f} سنة
+- هامش الربح: {display_margin}
+
+📑 *الأقساط والفترات:*
+- الفترة الأولى ({int(e14_p1_months)} شهر): {d14_p1_amount:,.0f} ر.س
+- الفترة الثانية ({int(e15_p2_months)} شهر): {d15_p2_amount:,.0f} ر.س
+- الفترة الثالثة ({int(e16_p3_months)} شهر): {d16_p3_amount:,.0f} ر.س
+{f"📌 *ملاحظات:* {notes_combined}" if notes_combined else ""}
+--------------------------------
+إعداد الخبير العقاري: أبو سليم 🏡"""
+
+    encoded_message = urllib.parse.quote(whatsapp_message)
+    whatsapp_url = f"https://wa.me/?text={encoded_message}"
+
+    st.link_button("📲 إرسال التقرير عبر واتساب", url=whatsapp_url)
 
 with tab2:
     st.markdown("### 🧮 حاسبات صافي التعريف وصافي التعريف (وزارة الدفاع)")
@@ -380,7 +413,6 @@ with tab3:
         pers_net_salary = st.number_input("الراتب الصافي", value=15000.0, key="pers_net_salary_input")
         pers_months = st.number_input("المدة بالأشهر", value=60, min_value=1, max_value=360, key="pers_months_input")
         
-        # نسبة الربح مقفولة ومربوطة بجهة العمل والراتب الصافي
         if job_status in ["عسكري", "عسكري اعتزاز"]:
             pers_rate = excel_lookup(pers_net_salary, [0, 4000, 10000, 15000, 45000], [0, 3.99, 2.69, 2.15, 1.49])
         elif job_status in ["متقاعد", "مدني"]:
@@ -391,13 +423,11 @@ with tab3:
         st.info(f"🔒 نسبة الربح السنوية (تلقائية حسب الشيت): **{pers_rate}%**")
 
     with p_col2:
-        # نسبة الاستقطاع تتغير ديناميكياً بناءً على جهة العمل (25% للمتقاعد، 33.33% للبقية)
         pers_deduct_pct = 0.25 if job_status == "متقاعد" else 0.3333
         
         max_allowed_monthly = pers_net_salary * pers_deduct_pct
         pers_total_years = pers_months / 12
         
-        # حساب التمويل الشخصي بالمعادلة البنكية الدقيقة
         pers_total_due = max_allowed_monthly * pers_months
         denominator = 1 + ((pers_rate / 100) * pers_total_years)
         pers_loan_amount = pers_total_due / denominator if denominator > 0 else 0
