@@ -305,13 +305,13 @@ note_3 = st.sidebar.text_input("ملاحظة السداد 3", "")
 
 # --- ترتيب الأقسام داخل تابات تفاعلية (Tabs) ---
 tab1, tab2, tab3 = st.tabs([
-    "📊 تقرير تصوير الحسبة للعميل", 
+    "📊 بيانات الحسبة", 
     "🧮 حاسبات صافي التعريف", 
     "💰 احتساب التمويل الشخصي"
 ])
 
 with tab1:
-    st.markdown("### 📊 تقرير تصوير الحسبة للعميل")
+    st.markdown("### 📊 بيانات الحسبة")
     
     client_name_input = st.text_input("اسم العميل", "محمد بن عبد الله", key="report_client_name")
     st.markdown(f"**العميل الكريم:** `{client_name_input}`")
@@ -354,7 +354,7 @@ with tab1:
     if note_2: notes_combined += f"\n- {note_2}"
     if note_3: notes_combined += f"\n- {note_3}"
 
-    whatsapp_message = f"""📊 *تقرير تصوير الحسبة العقارية*
+    whatsapp_message = f"""📊 *بيانات الحسبة العقارية*
 --------------------------------
 👤 *اسم العميل:* {client_name_input}
 🏢 *جهة العمل:* {job_status}
