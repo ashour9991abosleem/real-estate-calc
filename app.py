@@ -302,95 +302,107 @@ note_1 = st.sidebar.text_input("ملاحظة السداد 1", "")
 note_2 = st.sidebar.text_input("ملاحظة السداد 2", "")
 note_3 = st.sidebar.text_input("ملاحظة السداد 3", "")
 
-st.markdown("### 📊 تقرير تصوير الحسبة للعميل")
+# --- ترتيب الأقسام داخل تابات تفاعلية (Tabs) ---
+tab1, tab2, tab3 = st.tabs([
+    "📊 تقرير تصوير الحسبة للعميل", 
+    "🧮 حاسبات صافي التعريف", 
+    "💰 احتساب التمويل الشخصي"
+])
 
-col_rep1, col_rep2 = st.columns(2)
+with tab1:
+    st.markdown("### 📊 تقرير تصوير الحسبة للعميل")
+    
+    # خانة اسم العميل المضافة حديثاً داخل التقرير
+    client_name_input = st.text_input("اسم العميل", "محمد بن عبد الله", key="report_client_name")
+    st.markdown(f"**العميل الكريم:** `{client_name_input}`")
+    st.markdown("---")
 
-with col_rep1:
-    st.markdown("##### 📌 ملاحظات السداد")
-    if note_1: st.write(f"• {note_1}")
-    if note_2: st.write(f"• {note_2}")
-    if note_3: st.write(f"• {note_3}")
-    st.markdown(f"**جهة العمل:** {job_status}")
-    st.markdown(f"**المدة المتبقية على التقاعد:** {k17_remaining_service} شهراً")
+    col_rep1, col_rep2 = st.columns(2)
 
-with col_rep2:
-    summary_data = {
-        "البيان": ["مبلغ التمويل", "الدعم الشهري", "مدة التمويل", "هامش الربح (نسبة البنك)"],
-        "القيمة": [f"{net_financing:,.0f} ر.س", f"{k14_support} ر.س", f"{e8_total_years:.1f} سنة", display_margin]
+    with col_rep1:
+        st.markdown("##### 📌 ملاحظات السداد")
+        if note_1: st.write(f"• {note_1}")
+        if note_2: st.write(f"• {note_2}")
+        if note_3: st.write(f"• {note_3}")
+        st.markdown(f"**جهة العمل:** {job_status}")
+        st.markdown(f"**المدة المتبقية على التقاعد:** {k17_remaining_service} شهراً")
+
+    with col_rep2:
+        summary_data = {
+            "البيان": ["مبلغ التمويل", "الدعم الشهري", "مدة التمويل", "هامش الربح (نسبة البنك)"],
+            "القيمة": [f"{net_financing:,.0f} ر.س", f"{k14_support} ر.س", f"{e8_total_years:.1f} سنة", display_margin]
+        }
+        st.table(pd.DataFrame(summary_data))
+
+    st.markdown("#### 📑 تفصيل الأقساط والفترات")
+    periods_data = {
+        "الفترة": ["الفترة الأولى", "الفترة الثانية", "الفترة الثالثة"],
+        "عدد الشهور": [int(e14_p1_months), int(e15_p2_months), int(e16_p3_months)],
+        "القسط العقاري (ر.س)": [f"{d14_p1_amount:,.0f}", f"{d15_p2_amount:,.0f}", f"{d16_p3_amount:,.0f}"]
     }
-    st.table(pd.DataFrame(summary_data))
+    st.table(pd.DataFrame(periods_data))
 
-st.markdown("#### 📑 تفصيل الأقساط والفترات")
-periods_data = {
-    "الفترة": ["الفترة الأولى", "الفترة الثانية", "الفترة الثالثة"],
-    "عدد الشهور": [int(e14_p1_months), int(e15_p2_months), int(e16_p3_months)],
-    "القسط العقاري (ر.س)": [f"{d14_p1_amount:,.0f}", f"{d15_p2_amount:,.0f}", f"{d16_p3_amount:,.0f}"]
-}
-st.table(pd.DataFrame(periods_data))
+    col_bot1, col_bot2 = st.columns(2)
+    col_bot1.metric("الدعم", support_type)
+    col_bot2.metric("صافي راتب الاحتساب", f"{net_salary:,.0f} ر.س")
 
-col_bot1, col_bot2 = st.columns(2)
-col_bot1.metric("الدعم", support_type)
-col_bot2.metric("صافي راتب الاحتساب", f"{net_salary:,.0f} ر.س")
+with tab2:
+    st.markdown("### 🧮 حاسبات صافي التعريف وصافي التعريف (وزارة الدفاع)")
+    calc_col1, calc_col2 = st.columns(2)
 
-st.markdown("---")
-st.markdown("### 🧮 حاسبات صافي التعريف وصافي التعريف (وزارة الدفاع)")
-calc_col1, calc_col2 = st.columns(2)
-
-with calc_col1:
-    st.markdown("##### صافي التعريف (العام)")
-    def_base = st.number_input("الأساسي (صافي التعريف)", value=4000.0, key="def_base")
-    def_allowances = st.number_input("البدلات", value=1400.0, key="def_allow")
-    
-    def_retirement = def_base * 0.09
-    net_definition = (def_base - def_retirement) + def_allowances
-    
-    st.text(f"خصم التقاعد (9%): -{def_retirement:,.2f}")
-    st.success(f"صافي التعريف النهائي: **{net_definition:,.2f} ر.س**")
-
-with calc_col2:
-    st.markdown("##### صافي التعريف (وزارة الدفاع)")
-    mod_base = st.number_input("الأساسي (وزارة الدفاع)", value=4000.0, key="mod_base")
-    mod_total = st.number_input("الإجمالي (وزارة الدفاع)", value=10000.0, key="mod_total")
-    
-    mod_retirement_deduction = mod_base * 0.09
-    net_mod_definition = mod_total - mod_retirement_deduction
-    
-    st.text(f"خصم التقاعد العسكري (9% من الأساسي): -{mod_retirement_deduction:,.2f}")
-    st.success(f"الصافي النهائي للتعريف (وزارة الدفاع): **{net_mod_definition:,.2f} ر.س**")
-
-# --- حاسبة التمويل الشخصي (مع نسبة استقطاع متغيرة تلقائياً: 25% للمتقاعد، 33.33% لغيره) ---
-st.markdown("---")
-st.markdown("### 💰 احتساب التمويل الشخصي")
-p_col1, p_col2 = st.columns(2)
-
-with p_col1:
-    pers_net_salary = st.number_input("الراتب الصافي", value=15000.0, key="pers_net_salary_input")
-    pers_months = st.number_input("المدة بالأشهر", value=60, min_value=1, max_value=360, key="pers_months_input")
-    
-    # نسبة الربح مقفولة ومربوطة بجهة العمل والراتب الصافي
-    if job_status in ["عسكري", "عسكري اعتزاز"]:
-        pers_rate = excel_lookup(pers_net_salary, [0, 4000, 10000, 15000, 45000], [0, 3.99, 2.69, 2.15, 1.49])
-    elif job_status in ["متقاعد", "مدني"]:
-        pers_rate = excel_lookup(pers_net_salary, [0, 3000, 4000, 7000, 10000, 15000, 25000, 45000], [0, 4.49, 3.99, 3.89, 2.69, 2.49, 1.99, 1.49])
-    else:
-        pers_rate = 3.99
+    with calc_col1:
+        st.markdown("##### صافي التعريف (العام)")
+        def_base = st.number_input("الأساسي (صافي التعريف)", value=4000.0, key="def_base")
+        def_allowances = st.number_input("البدلات", value=1400.0, key="def_allow")
         
-    st.info(f"🔒 نسبة الربح السنوية (تلقائية حسب الشيت): **{pers_rate}%**")
+        def_retirement = def_base * 0.09
+        net_definition = (def_base - def_retirement) + def_allowances
+        
+        st.text(f"خصم التقاعد (9%): -{def_retirement:,.2f}")
+        st.success(f"صافي التعريف النهائي: **{net_definition:,.2f} ر.س**")
 
-with p_col2:
-    # نسبة الاستقطاع تتغير ديناميكياً بناءً على جهة العمل (25% للمتقاعد، 33.33% للبقية)
-    pers_deduct_pct = 0.25 if job_status == "متقاعد" else 0.3333
-    
-    max_allowed_monthly = pers_net_salary * pers_deduct_pct
-    pers_total_years = pers_months / 12
-    
-    # حساب التمويل الشخصي بالمعادلة البنكية الدقيقة
-    pers_total_due = max_allowed_monthly * pers_months
-    denominator = 1 + ((pers_rate / 100) * pers_total_years)
-    pers_loan_amount = pers_total_due / denominator if denominator > 0 else 0
+    with calc_col2:
+        st.markdown("##### صافي التعريف (وزارة الدفاع)")
+        mod_base = st.number_input("الأساسي (وزارة الدفاع)", value=4000.0, key="mod_base")
+        mod_total = st.number_input("الإجمالي (وزارة الدفاع)", value=10000.0, key="mod_total")
+        
+        mod_retirement_deduction = mod_base * 0.09
+        net_mod_definition = mod_total - mod_retirement_deduction
+        
+        st.text(f"خصم التقاعد العسكري (9% من الأساسي): -{mod_retirement_deduction:,.2f}")
+        st.success(f"الصافي النهائي للتعريف (وزارة الدفاع): **{net_mod_definition:,.2f} ر.س**")
 
-st.markdown("---")
-res_pc1, res_pc2 = st.columns(2)
-res_pc1.metric("قسط الشخصي (الشهري)", f"{max_allowed_monthly:,.2f} ر.س")
-res_pc2.metric("صافي التمويل", f"{pers_loan_amount:,.2f} ر.س")
+with tab3:
+    st.markdown("### 💰 احتساب التمويل الشخصي")
+    p_col1, p_col2 = st.columns(2)
+
+    with p_col1:
+        pers_net_salary = st.number_input("الراتب الصافي", value=15000.0, key="pers_net_salary_input")
+        pers_months = st.number_input("المدة بالأشهر", value=60, min_value=1, max_value=360, key="pers_months_input")
+        
+        # نسبة الربح مقفولة ومربوطة بجهة العمل والراتب الصافي
+        if job_status in ["عسكري", "عسكري اعتزاز"]:
+            pers_rate = excel_lookup(pers_net_salary, [0, 4000, 10000, 15000, 45000], [0, 3.99, 2.69, 2.15, 1.49])
+        elif job_status in ["متقاعد", "مدني"]:
+            pers_rate = excel_lookup(pers_net_salary, [0, 3000, 4000, 7000, 10000, 15000, 25000, 45000], [0, 4.49, 3.99, 3.89, 2.69, 2.49, 1.99, 1.49])
+        else:
+            pers_rate = 3.99
+            
+        st.info(f"🔒 نسبة الربح السنوية (تلقائية حسب الشيت): **{pers_rate}%**")
+
+    with p_col2:
+        # نسبة الاستقطاع تتغير ديناميكياً بناءً على جهة العمل (25% للمتقاعد، 33.33% للبقية)
+        pers_deduct_pct = 0.25 if job_status == "متقاعد" else 0.3333
+        
+        max_allowed_monthly = pers_net_salary * pers_deduct_pct
+        pers_total_years = pers_months / 12
+        
+        # حساب التمويل الشخصي بالمعادلة البنكية الدقيقة
+        pers_total_due = max_allowed_monthly * pers_months
+        denominator = 1 + ((pers_rate / 100) * pers_total_years)
+        pers_loan_amount = pers_total_due / denominator if denominator > 0 else 0
+
+    st.markdown("---")
+    res_pc1, res_pc2 = st.columns(2)
+    res_pc1.metric("قسط الشخصي (الشهري)", f"{max_allowed_monthly:,.2f} ر.س")
+    res_pc2.metric("صافي التمويل", f"{pers_loan_amount:,.2f} ر.س")
