@@ -137,7 +137,7 @@ st.sidebar.markdown("---")
 st.sidebar.header("2. التزامات العميل")
 
 col_btn1, col_btn2, col_btn3 = st.sidebar.columns(3)
-calc_ratio_btn = col_btn1.button("حساب النسبة")
+calc_ratio_btn = col_btn1.button("قسط الشخصي")
 buy_debt_btn = col_btn2.button("شراء المديونية")
 no_debt_btn = col_btn3.button("بدون التزامات")
 
@@ -359,7 +359,7 @@ with calc_col2:
     st.text(f"خصم التقاعد العسكري (9% من الأساسي): -{mod_retirement_deduction:,.2f}")
     st.success(f"الصافي النهائي للتعريف (وزارة الدفاع): **{net_mod_definition:,.2f} ر.س**")
 
-# --- حاسبة التمويل الشخصي (مقتصرة على: الراتب الأساسي، المدة بالأشهر، صافي التمويل) ---
+# --- حاسبة التمويل الشخصي ---
 st.markdown("---")
 st.markdown("### 💰 احتساب التمويل الشخصي")
 p_col1, p_col2 = st.columns(2)
@@ -369,18 +369,17 @@ with p_col1:
     pers_months = st.number_input("المدة بالأشهر", value=60, min_value=1, max_value=360, key="pers_months_input")
 
 with p_col2:
-    # ثوابت الحساب خلف الكواليس مطابقة لصورة الشيت
     pers_rate = 3.99
-    pers_years = pers_months / 12
-    pers_deduct_pct = 0.55  # نسبة الاستقطاب الافتراضية
+    pers_deduct_pct = 0.3333
     
     max_allowed_monthly = pers_salary * pers_deduct_pct
     pers_total_years = pers_months / 12
     
-    # حساب صافي التمويل بناءً على معادلات المعامل والنسبة في الشيت
     pers_profit_factor = (pers_rate * pers_total_years) + 100
     pers_total_due = max_allowed_monthly * pers_months
     pers_loan_amount = (pers_total_due / pers_profit_factor) * 100 if pers_profit_factor > 0 else 0
 
-    st.markdown("##### النتيجة المطلوبة")
-    st.success(f"صافي التمويل: **{pers_loan_amount:,.2f} ر.س**")
+st.markdown("---")
+res_pc1, res_pc2 = st.columns(2)
+res_pc1.metric("قسط الشخصي (الشهري)", f"{max_allowed_monthly:,.2f} ر.س")
+res_pc2.metric("صافي التمويل", f"{pers_loan_amount:,.2f} ر.س")
