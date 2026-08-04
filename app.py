@@ -359,7 +359,7 @@ with calc_col2:
     st.text(f"خصم التقاعد العسكري (9% من الأساسي): -{mod_retirement_deduction:,.2f}")
     st.success(f"الصافي النهائي للتعريف (وزارة الدفاع): **{net_mod_definition:,.2f} ر.س**")
 
-# --- حاسبة التمويل الشخصي (مع معادلة نسبة الربح المقفولة تلقائياً) ---
+# --- حاسبة التمويل الشخصي (مع نسبة استقطاع متغيرة تلقائياً: 25% للمتقاعد، 33.33% لغيره) ---
 st.markdown("---")
 st.markdown("### 💰 احتساب التمويل الشخصي")
 p_col1, p_col2 = st.columns(2)
@@ -368,7 +368,7 @@ with p_col1:
     pers_net_salary = st.number_input("الراتب الصافي", value=15000.0, key="pers_net_salary_input")
     pers_months = st.number_input("المدة بالأشهر", value=60, min_value=1, max_value=360, key="pers_months_input")
     
-    # تطبيق معادلة نسبة الربح مقفولة ومربوطة بجهة العمل والراتب الصافي تماماً مثل الشيت
+    # نسبة الربح مقفولة ومربوطة بجهة العمل والراتب الصافي
     if job_status in ["عسكري", "عسكري اعتزاز"]:
         pers_rate = excel_lookup(pers_net_salary, [0, 4000, 10000, 15000, 45000], [0, 3.99, 2.69, 2.15, 1.49])
     elif job_status in ["متقاعد", "مدني"]:
@@ -379,7 +379,8 @@ with p_col1:
     st.info(f"🔒 نسبة الربح السنوية (تلقائية حسب الشيت): **{pers_rate}%**")
 
 with p_col2:
-    pers_deduct_pct = 0.3333  # نسبة الاستقطاع المعتمدة (33.33%)
+    # نسبة الاستقطاع تتغير ديناميكياً بناءً على جهة العمل (25% للمتقاعد، 33.33% للبقية)
+    pers_deduct_pct = 0.25 if job_status == "متقاعد" else 0.3333
     
     max_allowed_monthly = pers_net_salary * pers_deduct_pct
     pers_total_years = pers_months / 12
