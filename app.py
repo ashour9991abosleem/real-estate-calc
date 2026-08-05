@@ -6,7 +6,7 @@ import urllib.parse
 # إعدادات الصفحة
 st.set_page_config(page_title="حاسبة التمويل العقاري - أبو سليم", layout="wide", initial_sidebar_state="expanded")
 
-# تصميم واجهة الويب الاحترافية مع تكبير زر الشريط الجانبي وتحديد لون الخلفية المقترح
+# تصميم واجهة الويب مع اللون الأخضر الخاص بالبنك الأهلي وتعديل زر الشريط الجانبي
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
@@ -15,24 +15,39 @@ st.markdown("""
         font-family: 'Cairo', sans-serif;
     }
     
-    /* تعيين لون خلفية التطبيق المقترح (أزرق ثلجي فاتح ومهني) */
-    .stApp {
-        background-color: #F8FAFC;
+    /* تثبيت لون خلفية التطبيق بالأخضر الهادئ المستوحى من البنك الأهلي السعودي */
+    .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] {
+        background-color: #F1F8F5 !important;
     }
     
-    /* تكبير وتنسيق زر فتح/إغلاق الشريط الجانبي (السهمين) ليصبح واضحاً وبارزاً */
+    /* تنسيق زر فتح/إغلاق الشريط الجانبي (السهمين) وإضافة عبارة لوحة الإدخال بجانبه */
     [data-testid="collapsedControl"] {
-        background-color: #002D62 !important;
-        border-radius: 10px !important;
-        padding: 8px !important;
+        background-color: #006A4E !important;
+        border-radius: 8px !important;
+        padding: 6px 12px !important;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
         border: 2px solid #FFD700 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        top: 15px !important;
+        left: 15px !important;
+        z-index: 999999;
+    }
+    
+    [data-testid="collapsedControl"]::after {
+        content: "لوحة الإدخال";
+        font-family: 'Cairo', sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        color: #FFFFFF !important;
+        white-space: nowrap;
     }
     
     [data-testid="collapsedControl"] svg {
-        width: 28px !important;
-        height: 28px !important;
-        fill: #FFD700 !important;
+        width: 20px !important;
+        height: 20px !important;
+        fill: #FFFFFF !important;
     }
     
     /* إخفاء القائمة الرئيسية الافتراضية والفوتر */
@@ -42,17 +57,17 @@ st.markdown("""
     /* تصميم الحاويات والبطاقات الفاخرة */
     .custom-card {
         background-color: #ffffff;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #d1e7dd;
         border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 4px 6px -1px rgba(0, 106, 78, 0.05), 0 2px 4px -1px rgba(0, 106, 78, 0.03);
         margin-bottom: 20px;
     }
     
     /* تنسيق التابات الاحترافية */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
-        background-color: #e2e8f0;
+        background-color: #d1e7dd;
         padding: 6px;
         border-radius: 10px;
     }
@@ -62,12 +77,12 @@ st.markdown("""
         border-radius: 8px;
         padding: 10px 20px;
         font-weight: 600;
-        color: #475569;
+        color: #004d38;
         border: none;
     }
     
     .stTabs [aria-selected="true"] {
-        background-color: #002D62 !important;
+        background-color: #006A4E !important;
         color: white !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
@@ -85,7 +100,7 @@ st.markdown("""
         left: 0;
         width: 100vw;
         height: 100vh;
-        background: linear-gradient(135deg, #002D62 0%, #0056b3 100%);
+        background: linear-gradient(135deg, #006A4E 0%, #004d38 100%);
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -119,8 +134,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # الترويسة الرئيسية للنظام
-st.markdown("<h2 style='text-align: center; color: #002D62; font-weight: 900;'>نظام التطوير والتمويل العقاري المتقدم</h2>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center; color: #64748B;'>إعداد الخبير المالي: أبو سليم</h4>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; color: #006A4E; font-weight: 900;'>نظام التطوير والتمويل العقاري المتقدم</h2>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: #52796f;'>إعداد الخبير المالي: أبو سليم</h4>", unsafe_allow_html=True)
 st.markdown("---")
 
 # دالة تحويل وتفسير التواريخ (هجري / ميلادي)
