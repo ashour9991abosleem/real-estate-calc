@@ -6,7 +6,7 @@ import urllib.parse
 # إعدادات الصفحة
 st.set_page_config(page_title="حاسبة التمويل العقاري - أبو سليم", layout="wide")
 
-# شاشة افتتاحية بانيميشن ناعم وسلس جداً
+# تصميم واجهة الويب الاحترافية (تنسيقات CSS متقدمة وبطاقات محسنة)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
@@ -15,24 +15,49 @@ st.markdown("""
         font-family: 'Cairo', sans-serif;
     }
     
+    /* إخفاء عناصر ستريمليت الافتراضية لمظهر تطبيق مستقل */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    /* تصميم الحاويات والبطاقات الفاخرة */
+    .custom-card {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        margin-bottom: 20px;
+    }
+    
+    /* تنسيق التابات الاحترافية */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: #f1f5f9;
+        padding: 6px;
+        border-radius: 10px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background-color: transparent;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        color: #475569;
+        border: none;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: #002D62 !important;
+        color: white !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
     @keyframes smoothAppear {
-        0% {
-            opacity: 0;
-            transform: scale(0.96);
-        }
-        50% {
-            opacity: 1;
-            transform: scale(1);
-        }
-        80% {
-            opacity: 1;
-            visibility: visible;
-        }
-        100% {
-            opacity: 0;
-            visibility: hidden;
-            display: none;
-        }
+        0% { opacity: 0; transform: scale(0.96); }
+        50% { opacity: 1; transform: scale(1); }
+        80% { opacity: 1; visibility: visible; }
+        100% { opacity: 0; visibility: hidden; display: none; }
     }
     
     .splash-overlay {
@@ -74,8 +99,9 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("<h2 style='text-align: center; color: #1E3A8A;'>نظام التطوير والتمويل العقاري المتقدم</h2>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center; color: #6B7280;'>إعداد: أبو سليم</h4>", unsafe_allow_html=True)
+# الترويسة الرئيسية للنظام
+st.markdown("<h2 style='text-align: center; color: #002D62; font-weight: 900;'>نظام التطوير والتمويل العقاري المتقدم</h2>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: #64748B;'>إعداد الخبير المالي: أبو سليم</h4>", unsafe_allow_html=True)
 st.markdown("---")
 
 # دالة تحويل وتفسير التواريخ (هجري / ميلادي)
@@ -110,6 +136,8 @@ def excel_lookup(val, keys, values):
     return values[chosen_idx]
 
 # الشريط الجانبي للإدخالات الأساسية
+st.sidebar.markdown("### ⚙️ لوحة التحكم والإدخال")
+st.sidebar.markdown("---")
 st.sidebar.header("1. بيانات العميل والتواريخ")
 birth_date_input = st.sidebar.text_input("تاريخ الميلاد (هجري أو ميلادي)", "1990-05-15")
 hire_date_input = st.sidebar.text_input("تاريخ التعيين (هجري أو ميلادي)", "2015-01-01")
@@ -127,7 +155,7 @@ retirement_total_months = birth_total_months + (retirement_age * 12)
 current_total_months = (current_year * 12) + current_month
 k17_remaining_service = max(0, retirement_total_months - current_total_months)
 
-st.sidebar.success(f"⏳ المدة المتبقية على التقاعد: {k17_remaining_service} شهراً ({(k17_remaining_service/12):.1f} سنة)")
+st.sidebar.info(f"⏳ المدة المتبقية على التقاعد: {k17_remaining_service} شهراً ({(k17_remaining_service/12):.1f} سنة)")
 
 base_salary = st.sidebar.number_input("الراتب الأساسي (L27)", value=10000.0)
 net_salary = st.sidebar.number_input("الراتب الصافي (D3)", value=15000.0)
@@ -303,7 +331,7 @@ note_1 = st.sidebar.text_input("ملاحظة السداد 1", "")
 note_2 = st.sidebar.text_input("ملاحظة السداد 2", "")
 note_3 = st.sidebar.text_input("ملاحظة السداد 3", "")
 
-# --- ترتيب الأقسام داخل تابات تفاعلية (Tabs) ---
+# --- ترتيب الأقسام داخل تابات تفاعلية (Tabs) أنيقة ---
 tab1, tab2, tab3 = st.tabs([
     "📊 بيانات الحسبة", 
     "🧮 حاسبات صافي التعريف", 
@@ -324,6 +352,8 @@ with tab1:
         if note_1: st.write(f"• {note_1}")
         if note_2: st.write(f"• {note_2}")
         if note_3: st.write(f"• {note_3}")
+        if not note_1 and not note_2 and not note_3:
+            st.info("لا توجد ملاحظات سداد مدخلة حالياً.")
         st.markdown(f"**جهة العمل:** {job_status}")
         st.markdown(f"**المدة المتبقية على التقاعد:** {k17_remaining_service} شهراً")
 
@@ -413,7 +443,7 @@ with tab3:
         pers_net_salary = st.number_input("الراتب الصافي", value=15000.0, key="pers_net_salary_input")
         pers_months = st.number_input("المدة بالأشهر", value=60, min_value=1, max_value=360, key="pers_months_input")
         
-        # معادلة الخلية I15 الجديدة المحدثة
+        # معادلة الخلية I15 المحدثة للتمويل الشخصي
         if job_status in ["عسكري", "عسكري اعتزاز"]:
             pers_rate = excel_lookup(pers_net_salary, [0, 4000, 10000], [0, 3.99, 3.03])
         elif job_status in ["متقاعد", "مدني"]:
