@@ -3,10 +3,10 @@ import pandas as pd
 from datetime import datetime
 import urllib.parse
 
-# إعدادات الصفحة مع التأكد من إبقاء الشريط الجانبي مفتوحاً
+# إعدادات الصفحة
 st.set_page_config(page_title="حاسبة التمويل العقاري - أبو سليم", layout="wide", initial_sidebar_state="expanded")
 
-# تصميم واجهة الويب الاحترافية (بدون إخفاء الهيدر الأساسي لضمان ظهور زر الشريط الجانبي)
+# تصميم واجهة الويب الاحترافية مع تكبير زر الشريط الجانبي وتحديد لون الخلفية المقترح
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
@@ -15,7 +15,27 @@ st.markdown("""
         font-family: 'Cairo', sans-serif;
     }
     
-    /* إخفاء القائمة الرئيسية فقط لضمان عمل الشريط الجانبي بsلسة */
+    /* تعيين لون خلفية التطبيق المقترح (أزرق ثلجي فاتح ومهني) */
+    .stApp {
+        background-color: #F8FAFC;
+    }
+    
+    /* تكبير وتنسيق زر فتح/إغلاق الشريط الجانبي (السهمين) ليصبح واضحاً وبارزاً */
+    [data-testid="collapsedControl"] {
+        background-color: #002D62 !important;
+        border-radius: 10px !important;
+        padding: 8px !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+        border: 2px solid #FFD700 !important;
+    }
+    
+    [data-testid="collapsedControl"] svg {
+        width: 28px !important;
+        height: 28px !important;
+        fill: #FFD700 !important;
+    }
+    
+    /* إخفاء القائمة الرئيسية الافتراضية والفوتر */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     
@@ -32,7 +52,7 @@ st.markdown("""
     /* تنسيق التابات الاحترافية */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
-        background-color: #f1f5f9;
+        background-color: #e2e8f0;
         padding: 6px;
         border-radius: 10px;
     }
@@ -442,7 +462,6 @@ with tab3:
         pers_net_salary = st.number_input("الراتب الصافي", value=15000.0, key="pers_net_salary_input")
         pers_months = st.number_input("المدة بالأشهر", value=60, min_value=1, max_value=360, key="pers_months_input")
         
-        # معادلة الخلية I15 المحدثة للتمويل الشخصي
         if job_status in ["عسكري", "عسكري اعتزاز"]:
             pers_rate = excel_lookup(pers_net_salary, [0, 4000, 10000], [0, 3.99, 3.03])
         elif job_status in ["متقاعد", "مدني"]:
