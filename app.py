@@ -3,10 +3,10 @@ import pandas as pd
 from datetime import datetime
 import urllib.parse
 
-# إعدادات الصفحة
-st.set_page_config(page_title="حاسبة التمويل العقاري - أبو سليم", layout="wide")
+# إعدادات الصفحة مع التأكد من إبقاء الشريط الجانبي مفتوحاً
+st.set_page_config(page_title="حاسبة التمويل العقاري - أبو سليم", layout="wide", initial_sidebar_state="expanded")
 
-# تصميم واجهة الويب الاحترافية (تنسيقات CSS متقدمة وبطاقات محسنة)
+# تصميم واجهة الويب الاحترافية (بدون إخفاء الهيدر الأساسي لضمان ظهور زر الشريط الجانبي)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
@@ -15,10 +15,9 @@ st.markdown("""
         font-family: 'Cairo', sans-serif;
     }
     
-    /* إخفاء عناصر ستريمليت الافتراضية لمظهر تطبيق مستقل */
+    /* إخفاء القائمة الرئيسية فقط لضمان عمل الشريط الجانبي بsلسة */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
     
     /* تصميم الحاويات والبطاقات الفاخرة */
     .custom-card {
