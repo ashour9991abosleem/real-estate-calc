@@ -6,7 +6,7 @@ import urllib.parse
 # إعدادات الصفحة
 st.set_page_config(page_title="حاسبة التمويل العقاري - أبو سليم", layout="wide", initial_sidebar_state="expanded")
 
-# تصميم واجهة الويب مع اللون الأخضر للبنك الأهلي وتعديل زر لوحة المعلومات ودعم السحب (Swipe)
+# تصميم واجهة الويب باللون الأخضر للبنك الأهلي السعودي
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
@@ -18,35 +18,6 @@ st.markdown("""
     /* تثبيت لون خلفية التطبيق بالأخضر الهادئ المستوحى من البنك الأهلي السعودي */
     .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] {
         background-color: #F1F8F5 !important;
-    }
-    
-    /* تنسيق زر فتح/إغلاق الشريط الجانبي (السهمين) وكتابة لوحة المعلومات بجانبه */
-    [data-testid="collapsedControl"] {
-        background-color: #006A4E !important;
-        border-radius: 8px !important;
-        padding: 8px 14px !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-        border: 2px solid #FFD700 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        margin: 10px 0 15px 0 !important;
-        z-index: 99;
-    }
-    
-    [data-testid="collapsedControl"]::after {
-        content: "لوحة المعلومات";
-        font-family: 'Cairo', sans-serif;
-        font-size: 14px;
-        font-weight: 700;
-        color: #FFFFFF !important;
-        white-space: nowrap;
-    }
-    
-    [data-testid="collapsedControl"] svg {
-        width: 22px !important;
-        height: 22px !important;
-        fill: #FFFFFF !important;
     }
     
     /* إخفاء القائمة الرئيسية الافتراضية والفوتر */
@@ -130,40 +101,6 @@ st.markdown("""
     <h1>حاسبة التمويل العقاري للبنك الأهلي</h1>
     <h3>سيد عاشور (ابو سليم)</h3>
 </div>
-
-<!-- كود جافاسكريبت لتفعيل السحب (Swipe) لفتح وإغلاق لوحة المعلومات -->
-<script>
-document.addEventListener('DOMContentLoaded', (event) => {
-    let touchstartX = 0;
-    let touchendX = 0;
-    
-    function handleSwipe() {
-        const collapseBtn = document.querySelector('[data-testid="collapsedControl"]');
-        // السحب يمين لفتح لوحة المعلومات
-        if (touchendX - touchstartX > 70) {
-            if (collapseBtn && window.getComputedStyle(collapseBtn).display !== 'none') {
-                collapseBtn.click();
-            }
-        }
-        // السحب يسار لإغلاق لوحة المعلومات
-        if (touchstartX - touchendX > 70) {
-            const closeBtn = document.querySelector('button[kind="header"]');
-            if (closeBtn) {
-                closeBtn.click();
-            }
-        }
-    }
-    
-    window.addEventListener('touchstart', e => {
-        touchstartX = e.changedTouches[0].screenX;
-    }, false);
-    
-    window.addEventListener('touchend', e => {
-        touchendX = e.changedTouches[0].screenX;
-        handleSwipe();
-    }, false);
-});
-</script>
 """, unsafe_allow_html=True)
 
 # الترويسة الرئيسية للنظام
@@ -202,9 +139,16 @@ def excel_lookup(val, keys, values):
             break
     return values[chosen_idx]
 
-# الشريط الجانبي للإدخالات الأساسية (لوحة المعلومات)
-st.sidebar.markdown("### ⚙️ لوحة المعلومات والإدخال")
+# --- الشريط الجانبي (لوحة المعلومات) ---
+# إضافة لوجو البنك الأهلي السعودي (تأكد من وضع ملف اللوجو بنفس الاسم في مجلد المشروع أو تمرير المسار الصحيح)
+try:
+    st.sidebar.image("1000429832.jpg", use_container_width=True)
+except:
+    pass
+
+st.sidebar.markdown("<h3 style='text-align: center; color: #006A4E; font-weight: 900;'>لوحة المعلومات والإدخال</h3>", unsafe_allow_html=True)
 st.sidebar.markdown("---")
+
 st.sidebar.header("1. بيانات العميل والتواريخ")
 birth_date_input = st.sidebar.text_input("تاريخ الميلاد (هجري أو ميلادي)", "1990-05-15")
 hire_date_input = st.sidebar.text_input("تاريخ التعيين (هجري أو ميلادي)", "2015-01-01")
