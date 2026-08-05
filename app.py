@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import urllib.parse
+import base64
+import os
 
 # 1. إعدادات الصفحة الأساسية
 st.set_page_config(
@@ -10,12 +12,21 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# دالة لتحويل الصورة إلى Base64 لضمان ظهورها فوراً بدون أخطاء مسار
+def get_base64_image(image_path):
+    if os.path.exists(image_path):
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode("utf-8")
+    return None
+
+logo_base64 = get_base64_image("1000429832.jpg")
+
 # ترويسة التطبيق الرئيسية
 st.markdown("<h2 style='text-align: center; color: #006A4E; font-weight: 900;'>نظام التطوير والتمويل العقاري المتقدم</h2>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center; color: #52796f;'>إعداد الخبير المالي: أبو سليم</h4>", unsafe_allow_html=True)
 st.markdown("---")
 
-# دالة تحويل التواريخ
+# دالة تحويل وتفسير التواريخ
 def parse_date_input(date_str):
     if not date_str:
         return 2000, 1, 1
@@ -46,15 +57,19 @@ def excel_lookup(val, keys, values):
             break
     return values[chosen_idx]
 
-# ==================== الشريط الجانبي (الطريقة البرمجية الصافية) ====================
+# ==================== الشريط الجانبي (لوحة المعلومات) ====================
 
-# أ) عرض اللوجو مباشرة في أعلى الشريط الجانبي (تأكد من وجود صورة اللوجو بنفس الاسم في مجلد المشروع)
-try:
-    st.sidebar.image("1000429832.jpg", use_container_width=True)
-except Exception:
-    st.sidebar.warning("⚠️ لم يتم العثور على ملف اللوجو (1000429832.jpg) في مجلد المشروع.")
+# أ) عرض اللوجو بدقة واحترافية عبر Base64
+if logo_base64:
+    st.sidebar.markdown(
+        f"""
+        <div style="text-align: center; margin-bottom: 15px;">
+            <img src="data:image/jpeg;base64,{logo_base64}" style="max-width: 100%; height: auto; border-radius: 8px;">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-# ب) عنوان لوحة المعلومات باستخدام دنة Streamlit الأصلية بجانب أزرار القائمة
 st.sidebar.title("لوحة المعلومات والإدخال")
 st.sidebar.markdown("---")
 
@@ -268,7 +283,6 @@ with tab1:
     }
     st.table(pd.DataFrame(periods_data))
 
-    # واتساب
     whatsapp_message = f"""📊 *بيانات الحسبة العقارية*
 --------------------------------
 👤 *اسم العميل:* {client_name_input}
