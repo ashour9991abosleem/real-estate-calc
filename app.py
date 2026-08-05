@@ -413,12 +413,13 @@ with tab3:
         pers_net_salary = st.number_input("الراتب الصافي", value=15000.0, key="pers_net_salary_input")
         pers_months = st.number_input("المدة بالأشهر", value=60, min_value=1, max_value=360, key="pers_months_input")
         
+        # معادلة الخلية I15 الجديدة المحدثة
         if job_status in ["عسكري", "عسكري اعتزاز"]:
-            pers_rate = excel_lookup(pers_net_salary, [0, 4000, 10000, 15000, 45000], [0, 3.99, 2.69, 2.15, 1.49])
+            pers_rate = excel_lookup(pers_net_salary, [0, 4000, 10000], [0, 3.99, 3.03])
         elif job_status in ["متقاعد", "مدني"]:
-            pers_rate = excel_lookup(pers_net_salary, [0, 3000, 4000, 7000, 10000, 15000, 25000, 45000], [0, 4.49, 3.99, 3.89, 2.69, 2.49, 1.99, 1.49])
+            pers_rate = excel_lookup(pers_net_salary, [0, 4000, 7000, 10000], [0, 3.99, 3.89, 3.03])
         else:
-            pers_rate = 3.99
+            pers_rate = 0.0
             
         st.info(f"🔒 نسبة الربح السنوية (تلقائية حسب الشيت): **{pers_rate}%**")
 
